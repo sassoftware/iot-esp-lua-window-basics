@@ -4,7 +4,7 @@
 
 * [Introduction](#introduction)
 * [Lua Settings](#lua-settings)
-	* ["Fields to copy" vs "Fields to use in Lua code"](#"fields-to-copy"-vs-"fields-to-use-in-lua-code")
+	* [Fields to copy vs Fields to use in Lua code](#fields-to-copy-vs-fields-to-use-in-lua-code)
 	* [Using Regular Expressions](#using-regular-expressions)
 	* [Heartbeat function](#heartbeat-function)
 	* [Specifying the Lua function entry point](#specifying-the-lua-function-entry-point)
@@ -57,7 +57,7 @@ Have fun.
 
 Before we actually call a Lua function there are a few settings that we can employ to make our code more efficient and they will be discussed here.    
 
-### "Fields to copy" vs "Fields to use in Lua code"
+### Fields to copy vs Fields to use in Lua code
 
 On the Lua window when you open the paremeter pane you will see "fields to copy" and "fields to use".
 These configurations will help to reduce the potential performance impact (and inutility) of passing all the fields through the lua code.
