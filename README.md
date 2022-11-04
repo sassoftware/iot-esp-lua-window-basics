@@ -2,7 +2,23 @@
 
 ## Table of Contents
 
-[TOC]	
+* [Introduction](#introduction)
+* [Lua Settings](#lua-settings)
+	* ["Fields to copy" vs "Fields to use in Lua code"](#"fields-to-copy"-vs-"fields-to-use-in-lua-code")
+	* [Using Regular Expressions](#using-regular-expressions)
+	* [Heartbeat function](#heartbeat-function)
+	* [Specifying the Lua function entry point](#specifying-the-lua-function-entry-point)
+* [Use the print function to debug your code](#use-the-print-function-to-debug-your-code)
+* [Lua function libraries and modules](#lua-function-libraries-and-modules)
+	* [Built-in Lua functions](#built-in-lua-functions)
+		* [Math Library examples](#math-library-examples)
+		* [Operating System facility example](#operating-system-facility-example)
+	* [ESP Provided](#esp-provided)
+	* [Lua Custom functions written by you](#lua-custom-functions-written-by-you)
+* [State Variables](#state-variables)
+* [Summary](#summary)
+* [License](#license)
+* [Additional Resources](#additional-resources)
 
 ## Introduction
 
