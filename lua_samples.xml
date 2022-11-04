@@ -1,0 +1,209 @@
+<contquery name="cq1">
+  <windows>
+    <window-source insert-only="true" autogen-key="true" index="pi_EMPTY" name="customers">
+      <schema>
+        <fields>
+          <field name="ID" type="int64" key="true"/>
+          <field name="name" type="string"/>
+          <field name="email" type="string"/>
+          <field name="list" type="array(i64)"/>
+          <field name="zip" type="string"/>
+          <field name="region" type="string"/>
+          <field name="guid" type="string"/>
+          <field name="score" type="double"/>
+        </fields>
+      </schema>
+      <connectors>
+        <connector class="fs" name="sample">
+          <properties>
+            <property name="type"><![CDATA[pub]]></property>
+            <property name="rate"><![CDATA[10]]></property>
+            <property name="header"><![CDATA[1]]></property>
+            <property name="ignorecsvparseerrors"><![CDATA[true]]></property>
+            <property name="ignoreparseerrors"><![CDATA[true]]></property>
+            <property name="csvfielddelimiter"><![CDATA[,]]></property>
+            <property name="noautogenfield"><![CDATA[true]]></property>
+            <property name="addcsvopcode"><![CDATA[true]]></property>
+            <property name="addcsvflags"><![CDATA[normal]]></property>
+            <property name="stripnullsfromcsv"><![CDATA[true]]></property>
+            <property name="fsname"><![CDATA[@DATA_DIR@/lua_sample.csv]]></property>
+            <property name="fstype"><![CDATA[csv]]></property>
+          </properties>
+        </connector>
+      </connectors>
+    </window-source>
+    <window-lua events="abs" index="pi_EMPTY" name="math_abs">
+      <description><![CDATA[Create absolute value of score with math.abs function]]></description>
+      <schema>
+        <fields>
+          <field name="ID" type="int64" key="true"/>
+          <field name="name" type="string"/>
+          <field name="email" type="string"/>
+          <field name="list" type="array(i64)"/>
+          <field name="zip" type="string"/>
+          <field name="region" type="string"/>
+          <field name="guid" type="string"/>
+          <field name="score" type="double"/>
+          <field name="score_abs" type="string"/>
+        </fields>
+      </schema>
+      <copy><![CDATA[ID,name,email,list,zip,region,guid,score]]></copy>
+      <use><![CDATA[score]]></use>
+      <code><![CDATA[function abs(data,context) 
+    local e = {}
+    e.score_abs = math.abs(data.score)
+    return(e) 
+end]]></code>
+    </window-lua>
+    <window-lua events="check_deny" index="pi_EMPTY" name="match_deny_guid">
+      <description><![CDATA[Match deny list and output ot allow or deny]]></description>
+      <schema>
+        <fields>
+          <field name="TID" type="int64" key="true"/>
+          <field name="list" type="array(i64)"/>
+          <field name="name" type="string"/>
+          <field name="email" type="string"/>
+          <field name="zip" type="string"/>
+          <field name="region" type="string"/>
+          <field name="guid" type="string"/>
+          <field name="score" type="double"/>
+          <field name="score_abs" type="string"/>
+          <field name="guid_deny" type="string"/>
+          <field name="deny" type="string"/>
+          <field name="ID" type="int64"/>
+        </fields>
+      </schema>
+      <copy><![CDATA[ID,name,email,zip,region,guid,score,ID,name,email,list,zip,region,guid,score,score_abs]]></copy>
+      <use><![CDATA[guid,guid,guid_deny,list]]></use>
+      <code><![CDATA[
+local deny_list = {}
+
+function has_value (tab, val)
+    for index, value in ipairs(tab) do
+        if value == val then
+            return true
+        end
+    end
+
+    return false
+end
+
+function check_deny(data,context)
+    local e = {}
+    e.TID = os.time(os.date("!*t"))
+    e.deny=0
+    
+    if (context.input=='DENY') then
+        deny_list[#deny_list+1]=data.guid_deny
+    elseif (context.input=='abs_score') then
+        if has_value(deny_list, data.guid) then
+
+            e.deny=1
+        else
+
+            e.deny=0
+        end
+    else
+    end
+    
+    for _, item in ipairs(data.list) do
+    e.list_id = item
+    --logesp(context.window,"ITEM: "..toString(item),"debug",debug.getinfo(1).currentline)
+    return(e) 
+    end
+    
+
+end]]></code>
+    </window-lua>
+    <window-source index="pi_EMPTY" insert-only="true" name="DENY">
+      <schema>
+        <fields>
+          <field name="guid_deny" type="string" key="true"/>
+        </fields>
+      </schema>
+      <connectors>
+        <connector class="fs" name="deny_list">
+          <properties>
+            <property name="type"><![CDATA[pub]]></property>
+            <property name="csvfielddelimiter"><![CDATA[,]]></property>
+            <property name="noautogenfield"><![CDATA[true]]></property>
+            <property name="addcsvopcode"><![CDATA[true]]></property>
+            <property name="addcsvflags"><![CDATA[normal]]></property>
+            <property name="fsname"><![CDATA[@DATA_DIR@/blacklist.csv]]></property>
+            <property name="fstype"><![CDATA[csv]]></property>
+          </properties>
+        </connector>
+      </connectors>
+    </window-source>
+    <window-lua index="pi_EMPTY" events="generate_evt" name="generate_multiple_events">
+      <schema>
+        <fields>
+          <field name="TID" type="int64" key="true"/>
+          <field name="list_id" type="string" key="true"/>
+          <field name="name" type="string"/>
+          <field name="email" type="string"/>
+          <field name="zip" type="string"/>
+          <field name="region" type="string"/>
+          <field name="guid" type="string"/>
+          <field name="score" type="double"/>
+          <field name="score_abs" type="string"/>
+          <field name="guid_deny" type="string"/>
+          <field name="deny" type="string"/>
+          <field name="ID" type="int64"/>
+        </fields>
+      </schema>
+      <copy><![CDATA[ID,name,email,list,zip,region,guid,score,ID,name,email,list,zip,region,guid,score,list,name,email,zip,region,guid,score,ID,TID,guid_deny,score_abs]]></copy>
+      <use><![CDATA[list]]></use>
+      <code><![CDATA[
+function generate_evt(data,context)
+    local e = {}
+    for _, item in ipairs(data.list) do
+    e.list_id = item
+    e.guid="toto"
+    -- print("output:"..toString(data.list))
+    return(e) 
+    end
+end
+      
+      
+  ]]></code>
+    </window-lua>
+    <window-lua index="pi_EMPTY" events="require" name="use_external_library">
+      <schema>
+        <fields>
+          <field name="TID" type="int64" key="true"/>
+          <field name="list_id" type="string" key="true"/>
+          <field name="name" type="string"/>
+          <field name="email" type="string"/>
+          <field name="zip" type="string"/>
+          <field name="region" type="string"/>
+          <field name="guid" type="string"/>
+          <field name="score" type="double"/>
+          <field name="score_abs" type="string"/>
+          <field name="guid_deny" type="string"/>
+          <field name="deny" type="string"/>
+          <field name="ID" type="int64"/>
+        </fields>
+      </schema>
+      <copy><![CDATA[ID,name,email,list,zip,region,guid,score,TID,guid_deny,score_abs,list_id,deny]]></copy>
+      <use/>
+      <code><![CDATA[
+  
+mmesp=require("/opt/sas/data/myesp.lua")
+local e = {}
+function require(data,context)
+mmesp.print()
+return(e)
+end
+
+]]></code>
+    </window-lua>
+  </windows>
+  <edges>
+    <edge source="customers" target="math_abs"/>
+    <edge source="math_abs" target="match_deny_guid"/>
+    <edge source="DENY" target="match_deny_guid"/>
+    <edge source="match_deny_guid" target="generate_multiple_events"/>
+    <edge source="generate_multiple_events" target="use_external_library"/>
+  </edges>
+</contquery>
