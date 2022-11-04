@@ -74,7 +74,7 @@ Using exclude=true invert the logic and selected fields won't be be copied.
 
  If no fields are specified, all fields will be passed to Lua. Exclude=true invert the behavior. With exclude=true all fields will be sent to Lua excepted the selected ones.
 
-  ![Lua settings](images/fields_use.png)
+  ![Lua settings](Images/fields_use.png)
 
 ### Using Regular Expressions
 
