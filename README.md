@@ -22,7 +22,7 @@
 
 ## Introduction
 
-The 2021.1.5 ESP release (september 2021) introduces a new Window : the Lua Window. This window allows ESP developers processing events using Lua language scripting.
+The 2022.09 ESP release introduces a new Window: the Lua Window. This window allows ESP developers processing events using Lua language scripting.
 
 [Lua](https://www.lua.org) is a powerful, efficient, lightweight, embeddable scripting language. It supports procedural programming, object-oriented programming, functional programming, data-driven programming, and data description. These strenghts make it a very good embeded scripting language and one of the most used these days.
 
